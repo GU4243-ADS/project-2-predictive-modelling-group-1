@@ -11,7 +11,7 @@
 Term: Spring 2018
 
 + Project title: [a title]
-+ Team Number: 2
++ Team Number: 1
 + Team Members: David Arredondo 
                 Yujie Hu
                 [a list of team members]
