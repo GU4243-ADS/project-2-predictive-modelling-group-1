@@ -37,3 +37,28 @@ feature <- function(img_dir, set_name, data_name="data", export=T){
   }
   return(dat)
 }
+
+## HOG (Histogram of oriented gradients)
+
+# We create a HOG object
+# The only parameter of real importance here is winSize,
+# but we are required to pass in at least this many parameters
+# so that OpenCV can figure out which function we want to call.
+
+winSize <- tuple(64L,64L)
+blockSize <- tuple(16L,16L)
+blockStride <- tuple(8L,8L)
+cellSize <- tuple(8L,8L)
+nbins = 9L
+
+hog = cv2$HOGDescriptor(winSize,blockSize,blockStride,cellSize,nbins)
+
+#Most algorithms only work over images of fixed sizes. Let us resize the image
+#and compute the hog descriptor on the image. We note that the HOG descriptor
+#only accepts inputs in the 0-255 uint8 format, and so we need to specify
+#this as our input type.
+img_resized <- cv2$resize(img, dsize=tuple(64L, 64L))
+hog_values <- hog$compute(np_array(img_resized * 255, dtype='uint8'))
+
+#We thus compute a feature vector of length 1764 (in this case) which corresponds
+#to the HOG features of our image.
