@@ -177,7 +177,7 @@ for(i in 1:n_files){
   img <- readImage(paste0(img_train_dir,  "pet", i, ".jpg"))
   imgs[[i]] <- img
   
-  img_resized <- cv2$resize(img, dsize=tuple(64L, 64L))
+  img_resized <- cv2$resize(img[[i]], dsize=tuple(64L, 64L))
   hog_values <- hog$compute(np_array(img_resized * 255, dtype='uint8'))
 
   img_gray <- cv2$cvtColor(np_array(img, dtype='float32'), cv2$COLOR_BGR2GRAY)
