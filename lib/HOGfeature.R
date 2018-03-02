@@ -50,6 +50,6 @@ feature <- function(img_dir, export=T){
     hog_value<-t(hog_values)
     save(hog_value, file = paste0("../output/feature_",  "HOG", ".RData"))
   }
-  return(dat)
+  return(hog_value)
 }
 

@@ -1,11 +1,10 @@
 ---
-title: "Project 2 - Example Main Script"
-author: "Yujie"
-date: "February 20, 2018"
-output:
-  pdf_document: default
-  html_document: default
+title: "HOG+GBM"
+author: "Yujie Hu"
+date: "2018/3/1"
+output: html_document
 ---
+
 In your final Project 2 repo, there should be an R markdown file called `main.Rmd` that organizes **all computational steps** for evaluating your proposed image classification framework. 
 
 This file is meant to be a template for evaluating models used for image analysis (and could be generalized for any predictive modeling). You should update it according to your models/codes but your final document should have precisely the same structure. 
@@ -48,65 +47,6 @@ img_train_dir  <- paste(experiment_dir, "train/", sep="")
 
 ```
 
-from main_pets.rmd
-
-Now I will read in the data and record the dimensions of the images.
-In order to use the simple features we looked at in class last week
-(row averages of the pixel values), we need to find a subset of the data all having the same
-number of rows. First I read in the data and store only the dimensions of the matrix of
-pixel values in order to find a subset with the same number of rows.
-
-```{r}
-n_files <- length(list.files(img_train_dir))
-n_files
-```
-
-There are 2000 files. Even reading them will take a while. Let's work on a small
-subset of the first 500 files.
-```{r}
-#n_files <- 500
-```
-
-We read in all the images and store their dimensions in the `dat` matrix.
-```{r}
-dat <- matrix(NA, nrow = n_files, ncol = 3) 
-imgs <- vector("list", n_files)
-
-for(i in 1:n_files){
-  img <- readImage(paste0(img_train_dir,  "pet", i, ".jpg"))
-  imgs[[i]] <- img
-  dat[i, 1:length(dim(img))] <- dim(img)
-}
-```
-
-Let's get some information about the images.
-```{r}
-# How many B/W images?  All c olor.
-table(dat[, 3])
-# How many rows in each image?
-table(dat[, 2])
-```
-
-However, the usual strategy to deal with images of different sizes is to resize them
-to have the same size. This will allow us to deal with them in a uniform manner, and
-potentially reduce the amount of required computation.
-
-```{r}
-img_resized = pblapply(imgs, function(img) { resize(img, 128, 128) })
-dim(img_resized[[1]])
-```
-
-Resizing images is often an appropriate way to deal with images of various sizes.
-However, we should be careful with the aspect ratios. Indeed, if we distort it
-too much the image may become hard to recognise. A common strategy is to first
-crop the image to a square image, then resize the image.
-
-
-
-
-
-
-
 ### Step 1: Set up controls for model evaluation.
 
 In this step, we have a set of controls for the model evaluation.  The code in the rest of the document runs (or not) according to our choices here. 
@@ -141,105 +81,6 @@ label_train <- read.table(paste(experiment_dir, "train_label.txt", sep = ""), he
 label_train <- as.numeric(unlist(label_train) == "dog")
 ```
 
-
-
-
-
-
-
-work start here!
-
-```{r}
-dataFiles <- lapply(Sys.glob("data*.csv"), read.csv)
-
-for (i in 1:length(FileList)) {
-   load(FileList[i])
-}
-my.list <- vector(length(ls()),mode="list")
-for (i in 1:length(ls())) {
-    my.list[[i]] <- get(ls()[i])
-}
-my.rbind <- do.call(rbind,my.list)
-
-for(i in 1:100){
-    name_i <- paste('path/file_',i,'.RData', sep="")
-    load(name_i)
-}
-for(i in 1:100){
-    paste('name_',i,sep='') <- paste('path/file_',i,'.RData', sep="")
-    load(name_i)
-}
-paste('name_',i,sep='') <- paste('path/file_',i,'.RData', sep="")
-fname = paste('path/file_',i,'.RData', sep="")
-load(fname)
-list.files("path/", patten="*.RData", full.names="TRUE")
-
-
-
-```
-
-
-```{r}
-#read sift features(one vector for one image)
-sift<-read.csv("sift_features.csv", header = F)
-siftfeatures<-as.data.frame(t(sift))
-
-source("../lib/train.R")
-source("../lib/test.R")
-source("../lib/cross_validation.R")
-
-if(run.cv){
-  err_cv <- array(dim = c(length(model_values), 2))
-  for(k in 1:length(model_values)){
-    cat("k=", k, "\n")
-    err_cv[k,] <- cv.function(siftfeatures, label_train, model_values[k], K)
-  }
-  #save(err_cv, file = "../output/err_cvnew2.26.RData")
-}
-
-model_best <- model_values[1]
-if(run.cv){
-  model_best <- model_values[which.min(err_cv[, 1])]
-}
-par_best <- list(depth = model_best)
-
-
-tm_train <- NA
-fit_train <- train(siftfeatures, label_train)
-tm_train <- system.time(fit_train <- train(siftfeatures, label_train))
-#save(fit_train, file = "../output/fit_train.RData")
-
-
-
-
-
-
-#logistic
-set.seed(4243)
-predata<-cbind(siftfeature,label_train)
-predata$label_train<-as.factor(predata$label_train)
-
-sample1<-sample.int(n=nrow(predata),size=floor(0.75*nrow(predata)),replace=F)
-train1<-predata[sample1, ]
-test1<-predata[-sample1,]
-##very slow
-glm<-glm(label_train~.,family="binomial",data=train1)
-summary(glm)
-
-real <- test1$label_train
-predict. <- predict.glm(glm,type='response',newdata=test1[,-5001])  
-summary(predict.)
-predict =ifelse(predict.>0.5,1,0)  
-##accuracy
-res <- data.frame(real,predict)  
-confusion<-table(real,predict =ifelse(predict>0.5,'dog','cat'))  
-confusion
-accuracy = sum(diag(confusion))/nrow(test1) 
-accuracy
-```
-
-
-
 ### Step 3: Construct visual features
 
 For this simple example, we use the row averages of raw pixel values as the visual features. Note that this strategy **only** works for images with the same number of rows. For some other image datasets, the feature function should be able to handle heterogeneous input images. Save the constructed features to the output subfolder.
@@ -247,18 +88,16 @@ For this simple example, we use the row averages of raw pixel values as the visu
 `feature.R` should be the wrapper for all your feature engineering functions and options. The function `feature( )` should have options that correspond to different scenarios for your project and produces an R object that contains features that are required by all the models you are going to evaluate later. 
 
 ```{r feature}
-source("../lib/feature.R")
+source("../lib/HOGfeature.R")
 
 tm_feature_train <- NA
 if(run.feature.train){
-  tm_feature_train <- system.time(dat_train <- feature(img_train_dir, "train", 
-                                                       data_name = "zip", export = TRUE))
+  tm_feature_train <- system.time(dat_train <- feature(img_train_dir, export = TRUE))
 }
 
 tm_feature_test <- NA
 if(run.feature.test){
-  tm_feature_test <- system.time(dat_test <- feature(img_test_dir, "test", 
-                                                     data_name = "zip", export = TRUE))
+  tm_feature_test <- system.time(dat_test <- feature(img_test_dir, export = TRUE))
 }
 
 #save(dat_train, file = "../output/feature_train.RData")
@@ -297,7 +136,7 @@ if(run.cv){
     cat("k=", k, "\n")
     err_cv[k,] <- cv.function(hog_value, label_train, model_values[k], K)
   }
-  save(err_cv, file = "../output/err_cvHOG.RData")
+  save(err_cv, file = "../output/err_cvHOG_GBM.RData")
 }
 ```
 
@@ -326,10 +165,6 @@ if(run.cv){
 }
 
 par_best <- list(depth = model_best)
-
-# same chose the min var
-#model_best<-9
-#par_best <- list(depth = model_best)
 ```
 
 * Train the model with the entire training set using the selected model (in this case, model parameter) via cross-validation.
@@ -337,7 +172,7 @@ par_best <- list(depth = model_best)
 ```{r final_train}
 tm_train <- NA
 tm_train <- system.time(fit_train <- train(hog_value, label_train, par_best))
-save(fit_train, file = "../output/HOGfit_train.RData")
+save(fit_train, file = "../output/HOG_GBM_fit_train.RData")
 ```
 
 ### Step 5: Make prediction 
@@ -348,9 +183,9 @@ Feed the final training model with the test data.  (Note that for this to truly 
 tm_test <- NA
 if(run.test){
   load(file = paste0("../output/feature_", "zip", "_", "test", ".RData"))
-  load(file = "../output/fit_train.RData")
+  load(file = "../output/HOG_GBM_fit_train.RData")
   tm_test <- system.time(pred_test <- test(fit_train, dat_test))
-  save(pred_test, file = "../output/pred_test.RData")
+  save(pred_test, file = "../output/HOG_GBM_pred_test.RData")
 }
 ```
 
