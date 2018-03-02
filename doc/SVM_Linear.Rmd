@@ -1,0 +1,103 @@
+---
+title: "Project 2 - Random Forest for Classification"
+author: "Huijun Cui"
+date: "March 1, 2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r, warning = FALSE}
+if(!require("e1071")){
+  install.packages("e1071")
+}
+
+library("sets")
+library("pbapply")
+library("dplyr")
+library("purrr")
+library("EBImage")
+library("gbm")
+library("tidyverse")
+library("grDevices")
+library("tree")
+library("e1071")
+```
+
+### Step 1: Set path
+
+```{r wkdir, eval=FALSE}
+setwd("C:/Users/Admin/Documents/GitHub/project-2-predictive-modelling-group-1/doc") 
+img_train_dir  <- "../data/pets/train/"
+```
+
+### Step 2: Import training images class labels.
+
+```{r train_label}
+labels <- read.table(paste(img_train_dir, "../train_label.txt", sep = ""), header = F)
+labels <- ifelse(labels == "dog", 'dog', 'cat')
+label <- as.factor(labels) 
+```
+
+### Step 3: Importing SIFT features
+
+```{r}
+features <- read.csv("../lib/sift_features.csv", sep = ",", header=F)
+mydata <- data.frame(t(features),label)
+```
+
+### Step 4: Data splitting
+
+```{r}
+set.seed(6)
+train=sample(1:nrow(mydata),nrow(mydata)*0.8)
+mydata.test=mydata[-train,]
+label.test=label[-train]
+```
+
+### Step 5: Model training
+
+```{r}
+#1 min
+svm_1000 =svm(label~., data = mydata, kernel ="linear", cost=1000,
+scale = TRUE)
+```
+```{r}
+summary(svm_1000)
+```
+
+```{r}
+svm_1e06=svm(label~., data = mydata, kernel ="linear", cost=0.000001, scale=TRUE)
+```
+```{r}
+summary(svm_1e06)
+```
+
+### Step 6: Cross-validation
+
+```{r}
+set.seed(4)
+#Several hours
+tune.out=tune(svm,label~.,data=mydata,kernel="linear",scale=T,
+ranges =list(cost=c(0.001,0.01,0.1,1,10,100)))
+```
+```{r}
+summary(tune.out)
+```
+### Step 7: Best model picking
+
+```{r}
+best_svm =tune.out$best.model
+summary(best_svm)
+```
+
+### Step 8: Testing
+
+```{r}
+label.pred = predict(best_svm,mydata.test)
+table(predict = label.pred,truth=label.test)
+```
+```{r}
+label.1e06 = predict(svm_1e06,mydata.test)
+table(predict = label.1e06,truth=label.test)
+```

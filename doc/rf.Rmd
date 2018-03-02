@@ -1,5 +1,5 @@
 ---
-title: "Project 3 - Random Forest for Classification"
+title: "Project 2 - Random Forest for Classification"
 author: "Huijun Cui"
 date: "March 1, 2018"
 output:
@@ -8,19 +8,6 @@ output:
 ---
 
 ```{r, warning = FALSE}
-if(!require("EBImage")){
-  source("https://bioconductor.org/biocLite.R")
-  biocLite("EBImage")
-}
-
-if(!require("gbm")){
-  install.packages("gbm")
-}
-
-if(!require("pbapply")){
-  install.packages("pbapply")
-}
-
 if(!require("sets")){
   install.packages("sets")
 }
