@@ -1,5 +1,5 @@
 ---
-title: "Project 2 - Random Forest for Classification"
+title: "Project 2 - SVM Linear (SIFT)"
 author: "Huijun Cui"
 date: "March 1, 2018"
 output:
