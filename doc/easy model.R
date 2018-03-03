@@ -12,10 +12,14 @@ load("../output/feature_NN.RData")
 set.seed(123)
 s<-sample(1:2000, size=1500, replace=FALSE)
 
+label_trainada<-label_train
+label_trainada[which(label_trainada==0)] <--1
+
+
 train.data  <- NN_values[s,]
-train.label <- label_train[s]
+train.labelada <- label_trainada[s]
 test.data   <- NN_values[-s,]
-test.label  <- label_train[-s]
+test.labelada  <- label_trainada[-s]
 
 fit_gbm <- gbm.fit(x = train.data, y = train.label,
                    n.trees = 2000,
@@ -35,6 +39,22 @@ predicted<-as.numeric(pred > 0.5)
 table(predicted,test.label)
 
 sum(predicted==test.label)/500
+
+
+#try ada
+fit_ada<-adaboost(train.data, y = train.labelada,
+                  tree_depth = 5,
+                  n_rounds = 100, verbose = F)
+
+print(fit_ada)
+yhat_ada = predict(fit_ada, test.data)
+
+table(yhat_ada)
+table(yhat_ada,test.labelada)
+
+sum(yhat_ada==test.labelada)/500
+
+
 
 
 
