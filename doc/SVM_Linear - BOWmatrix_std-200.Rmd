@@ -1,0 +1,107 @@
+---
+title: "Project 2 - SVM Linear (BOWmatrix_std-200)"
+author: "Huijun Cui"
+date: "March 3, 2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r, warning = FALSE}
+if(!require("e1071")){
+  install.packages("e1071")
+}
+
+library("sets")
+library("pbapply")
+library("dplyr")
+library("purrr")
+library("EBImage")
+library("gbm")
+library("tidyverse")
+library("grDevices")
+library("tree")
+library("e1071")
+```
+
+### Step 1: Set path
+
+```{r wkdir, eval=FALSE}
+setwd("C:/Users/Admin/Documents/GitHub/project-2-predictive-modelling-group-1/doc") 
+img_train_dir  <- "../data/pets/train/"
+```
+
+### Step 2: Import training images class labels.
+
+```{r train_label}
+labels <- read.table(paste(img_train_dir, "../train_label.txt", sep = ""), header = F)
+labels <- ifelse(labels == "dog", 'dog', 'cat')
+label <- as.factor(labels) 
+```
+
+### Step 3: Importing SIFT features
+
+```{r}
+features <- read.csv("../lib/BOWmatrix_std-200.csv", sep = ",", header=T)
+feature <- features[,-1]
+mydata <- data.frame(feature,label)
+```
+
+### Step 4: Data splitting
+
+```{r}
+set.seed(6)
+train=sample(1:nrow(mydata),nrow(mydata)*0.8)
+mydata.test=mydata[-train,]
+label.test=label[-train]
+```
+
+### Step 5: Model training
+
+```{r}
+#half min
+svm_100 =svm(label~., data = mydata, kernel ="linear", cost=100,
+scale = TRUE)
+```
+```{r}
+summary(svm_100)
+```
+
+```{r}
+svm_1e05=svm(label~., data = mydata, kernel ="linear", cost=0.0001, scale=TRUE)
+```
+```{r}
+summary(svm_1e05)
+```
+
+### Step 6: Cross-validation
+
+```{r}
+set.seed(4)
+#6 min
+tune.out=tune(svm,label~.,data=mydata,kernel="linear",scale=T,
+ranges =list(cost=c(0.001,0.01,0.05,0.1,0.5,1,10)))
+```
+```{r}
+summary(tune.out)
+```
+### Step 7: Best model picking
+
+```{r}
+best_svm =tune.out$best.model
+summary(best_svm)
+```
+
+### Step 8: Testing
+
+```{r}
+label.pred = predict(best_svm,mydata.test)
+bestmatrix<-table(predict = label.pred,truth=label.test)
+bestmatrix
+accuracy = sum(bestmatrix[1,1]+bestmatrix[2,2])/(2000*0.2)
+accuracy
+```
+```{r}
+label.1e05 = predict(svm_1e05,mydata.test)
+table(predict = label.1e05,truth=label.test)
+```
