@@ -1,7 +1,7 @@
 ---
-title: "Project 3 - Example Main Script"
-author: "Yuting Ma, Tian Zheng with updates by Cindy Rush"
-date: "February 2, 2018"
+title: "Project 2 - Example Main Script"
+author: "Yujie"
+date: "February 20, 2018"
 output:
   pdf_document: default
   html_document: default
@@ -20,8 +20,14 @@ if(!require("gbm")){
   install.packages("gbm")
 }
 
+if(!require("pbapply")){
+  install.packages("pbapply")
+}
+
 library("EBImage")
 library("gbm")
+library("tidyverse")
+
 ```
 
 ### Step 0: Specify directories.
@@ -29,16 +35,77 @@ library("gbm")
 We first set the working directory to the location of this .Rmd file  (it should be in a project folder). Then we specify our training and testing data. If you do not have an independent test set, you need to create your own testing data by random subsampling from the training data (we haven't done this here), and in order to obain reproducible results, you should use `set.seed()` whenever randomization is used. 
 
 ```{r wkdir, eval=FALSE}
-setwd("Spring2018/Project_Starter_Codes/Project2-PredictiveModelling/doc") 
+setwd("~/Documents/GitHub/project-2-predictive-modelling-group-1/doc") 
+#right??
 # Replace the above with your own path or manually set it in RStudio to where this rmd file is located. 
 ```
 
 Now we provide directories for teh raw images. Here we assume the training set and test set are in different subfolders. 
 ```{r}
-experiment_dir <- "../data/zipcode/" # This will be modified for different data sets.
+experiment_dir <- "../data/pets/" # This will be modified for different data sets.
+# This is where my data lives (outside of Spring2018)
 img_train_dir  <- paste(experiment_dir, "train/", sep="")
-img_test_dir   <- paste(experiment_dir, "test/", sep="")
+
 ```
+
+from main_pets.rmd
+
+Now I will read in the data and record the dimensions of the images.
+In order to use the simple features we looked at in class last week
+(row averages of the pixel values), we need to find a subset of the data all having the same
+number of rows. First I read in the data and store only the dimensions of the matrix of
+pixel values in order to find a subset with the same number of rows.
+
+```{r}
+n_files <- length(list.files(img_train_dir))
+n_files
+```
+
+There are 2000 files. Even reading them will take a while. Let's work on a small
+subset of the first 500 files.
+```{r}
+#n_files <- 500
+```
+
+We read in all the images and store their dimensions in the `dat` matrix.
+```{r}
+dat <- matrix(NA, nrow = n_files, ncol = 3) 
+imgs <- vector("list", n_files)
+
+for(i in 1:n_files){
+  img <- readImage(paste0(img_train_dir,  "pet", i, ".jpg"))
+  imgs[[i]] <- img
+  dat[i, 1:length(dim(img))] <- dim(img)
+}
+```
+
+Let's get some information about the images.
+```{r}
+# How many B/W images?  All c olor.
+table(dat[, 3])
+# How many rows in each image?
+table(dat[, 2])
+```
+
+However, the usual strategy to deal with images of different sizes is to resize them
+to have the same size. This will allow us to deal with them in a uniform manner, and
+potentially reduce the amount of required computation.
+
+```{r}
+img_resized = pblapply(imgs, function(img) { resize(img, 128, 128) })
+dim(img_resized[[1]])
+```
+
+Resizing images is often an appropriate way to deal with images of various sizes.
+However, we should be careful with the aspect ratios. Indeed, if we distort it
+too much the image may become hard to recognise. A common strategy is to first
+crop the image to a square image, then resize the image.
+
+
+
+
+
+
 
 ### Step 1: Set up controls for model evaluation.
 
@@ -67,12 +134,111 @@ model_labels <- paste("GBM with depth =", model_values)
 
 ### Step 2: Import training images class labels.
 
-For the example of zip code digits, we code digit 9 as "1" and digit 7 as "0" for binary classification.
+For the example of zip code digits, we code dog as "1" and cat as "0" for binary classification.
 
 ```{r train_label}
 label_train <- read.table(paste(experiment_dir, "train_label.txt", sep = ""), header = F)
-label_train <- as.numeric(unlist(label_train) == "9")
+label_train <- as.numeric(unlist(label_train) == "dog")
 ```
+
+
+
+
+
+
+
+work start here!
+
+```{r}
+dataFiles <- lapply(Sys.glob("data*.csv"), read.csv)
+
+for (i in 1:length(FileList)) {
+   load(FileList[i])
+}
+my.list <- vector(length(ls()),mode="list")
+for (i in 1:length(ls())) {
+    my.list[[i]] <- get(ls()[i])
+}
+my.rbind <- do.call(rbind,my.list)
+
+for(i in 1:100){
+    name_i <- paste('path/file_',i,'.RData', sep="")
+    load(name_i)
+}
+for(i in 1:100){
+    paste('name_',i,sep='') <- paste('path/file_',i,'.RData', sep="")
+    load(name_i)
+}
+paste('name_',i,sep='') <- paste('path/file_',i,'.RData', sep="")
+fname = paste('path/file_',i,'.RData', sep="")
+load(fname)
+list.files("path/", patten="*.RData", full.names="TRUE")
+
+
+
+```
+
+
+```{r}
+#read sift features(one vector for one image)
+sift<-read.csv("sift_features.csv", header = F)
+siftfeatures<-as.data.frame(t(sift))
+
+source("../lib/train.R")
+source("../lib/test.R")
+source("../lib/cross_validation.R")
+
+if(run.cv){
+  err_cv <- array(dim = c(length(model_values), 2))
+  for(k in 1:length(model_values)){
+    cat("k=", k, "\n")
+    err_cv[k,] <- cv.function(siftfeatures, label_train, model_values[k], K)
+  }
+  #save(err_cv, file = "../output/err_cvnew2.26.RData")
+}
+
+model_best <- model_values[1]
+if(run.cv){
+  model_best <- model_values[which.min(err_cv[, 1])]
+}
+par_best <- list(depth = model_best)
+
+
+tm_train <- NA
+fit_train <- train(siftfeatures, label_train)
+tm_train <- system.time(fit_train <- train(siftfeatures, label_train))
+#save(fit_train, file = "../output/fit_train.RData")
+
+
+
+
+
+
+#logistic
+set.seed(4243)
+predata<-cbind(siftfeature,label_train)
+predata$label_train<-as.factor(predata$label_train)
+
+sample1<-sample.int(n=nrow(predata),size=floor(0.75*nrow(predata)),replace=F)
+train1<-predata[sample1, ]
+test1<-predata[-sample1,]
+##very slow
+glm<-glm(label_train~.,family="binomial",data=train1)
+summary(glm)
+
+real <- test1$label_train
+predict. <- predict.glm(glm,type='response',newdata=test1[,-5001])  
+summary(predict.)
+predict =ifelse(predict.>0.5,1,0)  
+##accuracy
+res <- data.frame(real,predict)  
+confusion<-table(real,predict =ifelse(predict>0.5,'dog','cat'))  
+confusion
+accuracy = sum(diag(confusion))/nrow(test1) 
+accuracy
+```
+
+
 
 ### Step 3: Construct visual features
 
@@ -124,14 +290,14 @@ source("../lib/test.R")
 
 ```{r runcv, message=FALSE, warning=FALSE}
 source("../lib/cross_validation.R")
-
+#load("../output/feature_HOG.RData")
 if(run.cv){
   err_cv <- array(dim = c(length(model_values), 2))
   for(k in 1:length(model_values)){
     cat("k=", k, "\n")
-    err_cv[k,] <- cv.function(dat_train, label_train, model_values[k], K)
+    err_cv[k,] <- cv.function(hog_value, label_train, model_values[k], K)
   }
-  save(err_cv, file = "../output/err_cv.RData")
+  save(err_cv, file = "../output/err_cvHOG.RData")
 }
 ```
 
@@ -139,10 +305,10 @@ if(run.cv){
 
 ```{r cv_vis}
 if(run.cv){
-  load("../output/err_cv.RData")
+  #load("../output/err_cvHOG.RData")
   #pdf("../fig/cv_results.pdf", width=7, height=5)
   plot(model_values, err_cv[,1], xlab = "Interaction Depth", ylab = "CV Error",
-       main = "Cross Validation Error", type = "n", ylim = c(0, 0.25))
+       main = "Cross Validation Error", type = "n", ylim = c(0, 0.35))
   points(model_values, err_cv[,1], col = "blue", pch=16)
   lines(model_values, err_cv[,1], col = "blue")
   arrows(model_values, err_cv[,1] - err_cv[,2], model_values, err_cv[,1] + err_cv[,2], 
@@ -160,14 +326,18 @@ if(run.cv){
 }
 
 par_best <- list(depth = model_best)
+
+# same chose the min var
+#model_best<-9
+#par_best <- list(depth = model_best)
 ```
 
 * Train the model with the entire training set using the selected model (in this case, model parameter) via cross-validation.
 
 ```{r final_train}
 tm_train <- NA
-tm_train <- system.time(fit_train <- train(dat_train, label_train, par_best))
-save(fit_train, file = "../output/fit_train.RData")
+tm_train <- system.time(fit_train <- train(hog_value, label_train, par_best))
+save(fit_train, file = "../output/HOGfit_train.RData")
 ```
 
 ### Step 5: Make prediction 
