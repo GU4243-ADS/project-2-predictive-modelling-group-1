@@ -1,0 +1,101 @@
+---
+title: "decision tree+BOWmatrix50"
+author: "Judy Cheng"
+date: "March 4, 2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r, warning = FALSE}
+install.packages('e1071')
+install.packages('caret')
+install.packages('rpart')
+library(e1071)
+library(caret)  
+library(rpart) 
+```
+
+### Step 1: Specify directories.
+
+We first set the working directory to the location of this .Rmd file  (it should be in a project folder). Then we specify our training and testing data. If you do not have an independent test set, you need to create your own testing data by random subsampling from the training data (we haven't done this here), and in order to obain reproducible results, you should use `set.seed()` whenever randomization is used. 
+
+```{r wkdir, eval=FALSE}
+setwd("~/Documents/GitHub/project-2-predictive-modelling-group-1/doc") 
+```
+
+
+### Step 2: Import training images class labels.
+
+```{r train_label}
+label_train <- read.table("../data/train_label.txt", sep = "", header = F)
+label_train <- ifelse(label_train == "dog", 'dog', 'cat')
+label_train <- as.factor(label_train) 
+```
+
+### Step 3: load SIFT features
+
+```{r feature}
+features <- read.csv("../data/BOWmatrix-50.csv", sep = ",", header=T)
+
+feature <- features[,-1]
+pets <- data.frame(feature,label=label_train)
+head(pets)
+```
+
+### Step 4: model selection with cv
+
+
+```{r}
+set.seed(1)
+inTrain <- createDataPartition(label_train, p=.8, list=FALSE)
+pets_train <- pets[inTrain,]
+pets_test <- pets[-inTrain,]
+
+fitControl <- trainControl(method="cv")
+tree.cv.pets <- train(label ~ ., data=pets_train, method="rpart2", 
+                  trControl = fitControl, tuneGrid=data.frame(maxdepth=1:10))
+```
+
+
+
+* Visualize the cross-validation results. 
+
+```{r cv_vis}
+tree.cv.pets
+#Produce a plot with tree size on the x-axis and cross-validated
+#classification error rate on the y-axis.
+plot(tree.cv.pets)
+```
+
+
+* Train the model with the entire training set using the selected model (in this case, model parameter) via cross-validation.
+
+```{r final_train}
+fitControl <- trainControl(method="none")
+pruned_tree <- train(label ~ ., data=pets_train, method="rpart2", trControl = fitControl, tuneGrid= data.frame(maxdepth=7))
+```
+
+### Step 5: Make prediction 
+
+Feed the final training model with the test data.  (Note that for this to truly be 'test' data, it should have had no part of the training procedure used above.) 
+
+```{r test}
+tm_test<-system.time(test_pred<-confusionMatrix(data=predict(pruned_tree, newdata=pets_test), reference=pets_test$label))
+test_pred
+```
+
+put entire dataset into model
+```{r final_train}
+tm_train <- system.time(best_model <- train(label ~ ., data=pets, method="rpart2", trControl = fitControl, tuneGrid= data.frame(maxdepth=5)))
+
+save(best_model, file = "../output/best_model.RData")
+```
+### Summarize Running Time
+
+Prediction performance matters, so does the running times for constructing features and for training the model, especially when the computation resource is limited. 
+
+```{r running_time}
+cat("Time for training model=", tm_train[1], "s \n")
+cat("Time for making prediction=", tm_test[1], "s \n")
+```

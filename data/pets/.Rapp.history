@@ -1,0 +1,7 @@
+load("/Users/judy/Downloads/train-features/pet1.jpg.sift.Rdata")
+features
+keypoints
+load("/Users/judy/Documents/GitHub/project-2-predictive-modelling-group-1/data/dog-cats/pet1.jpg.sift.Rdata")
+load("/Users/judy/Documents/GitHub/project-2-predictive-modelling-group-1/data/dog-cats/pet1.jpg.sift.Rdata")
+features
+keypoints
