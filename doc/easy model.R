@@ -7,6 +7,7 @@ BOWmatrix_50<-BOWmatrix_50[,-1]
 bow<-as.matrix(BOWmatrix_50)
 
 load("../output/feature_NN.RData")
+load("../output/feature_HOG.RData")
 
 
 set.seed(123)
@@ -14,6 +15,53 @@ s<-sample(1:2000, size=1500, replace=FALSE)
 
 label_trainada<-label_train
 label_trainada[which(label_trainada==0)] <--1
+
+train.data  <- NN_values[s,]
+train.label <- label_train[s]
+test.data   <- NN_values[-s,]
+test.label  <- label_train[-s]
+
+train.data  <- hog_value[s,]
+train.label <- label_train[s]
+test.data   <- hog_value[-s,]
+test.label  <- label_train[-s]
+
+
+#TRY SVM
+
+svm_100 =svm(x = train.data, y = train.label, kernel ="linear", cost=100,scale = TRUE)
+summary(svm_100)
+svm_1e04=svm(x = train.data, y = train.label, kernel ="linear", cost=0.001, scale=TRUE)
+summary(svm_1e04)
+
+tune.out=tune(svm,train.x=train.data, train.y=train.label,kernel="linear",scale=T,
+              ranges =list(cost=c(0.001,0.005,0.01,0.1,0.5,1,10)))
+summary(tune.out)
+best_svm =tune.out$best.model
+summary(best_svm)
+
+label.pred = predict(svm_1e04,test.data)
+
+bestmatrix<-table(predict = label.pred,truth=test.label)
+bestmatrix
+accuracy = sum(bestmatrix[1,1]+bestmatrix[2,2])/500
+accuracy
+
+svmdata<-as.data.frame(cbind(train.data,train.label))
+svmdata$train.label<-as.factor(svmdata$train.label)
+
+
+
+tune.out=tune(svm,train.x=train.data, train.y=train.label,kernel="linear",scale=T,
+              ranges =list(cost=c(0.001,0.005,0.01,0.1,0.5,1,10)))
+best_svm =tune.out$best.model
+summary(best_svm)
+
+svm_1e04=svm(train.label~.,svmdata, kernel ="linear", cost=0.001, scale=TRUE)
+summary(svm_1e04)
+
+
+
 
 
 train.data  <- NN_values[s,]
