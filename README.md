@@ -12,15 +12,16 @@ Term: Spring 2018
 
 + Project title: [a title]
 + Team Number: 1
-+ Team Members: David Arredondo 
-                Yujie Hu
-                Yang He
-                Judy Cheng
++ Team Members: David Arredondo,
+                Yujie Hu,
+                Yang He,
+                Judy Cheng,
                 Huijun Cui
                 
-+ Project summary: We analyzed multpile classification models, and several different feature extractors
++ Project summary: After analyzing several combinations of models and feature extractors, our team concluded that an AdaBoost model with
+Neural Network derived features offers the best of both performance and speed.
 
-Contribution statement: [default](doc/a_note_on_contributions.md) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement.
+Contribution statement: [default](doc/a_note_on_contributions.md) David ran the ORB features, and wrote the README files. All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement.
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
@@ -47,5 +48,6 @@ Please see each subfolder for a README file.
 
 ### Choosing Our Model
 
-Each us tried to work with different features, and then apply different models on them to 
+We choose the AdaBoost Model with Nerual Network dervied features. This model has the best combination of accuracy and performance time.
+The above table shows our experiementation with other models.
 
