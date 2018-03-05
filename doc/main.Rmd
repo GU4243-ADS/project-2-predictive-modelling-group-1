@@ -1,0 +1,207 @@
+---
+title: "Project 3 - Example Main Script"
+author: "Yuting Ma, Tian Zheng with updates by Cindy Rush"
+date: "February 2, 2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+### Step 0: Install Required Packages & Specify Directories
+
+```{r, warning = FALSE}
+if(!require("EBImage")){
+  source("https://bioconductor.org/biocLite.R")
+  biocLite("EBImage")
+}
+
+if(!require("JOUSBoost")){
+  install.packages("JOUSBoost")
+  devtools::install_github("molson2/JOUSBoost")
+}
+
+if(!require("pbapply")){
+  install.packages("pbapply")
+}
+
+if(!require("tensorflow")){
+  install.packages("tensorflow")
+}
+
+if(!require("reticulate")){
+  install.packages("reticulate")
+}
+
+library("EBImage")
+library("JOUSBoost")
+library("tidyverse")
+```
+
+Directories for training and test data.
+
+```{r}
+experiment_dir <- "../data/pets/" # This will be modified for different data sets.
+# This is where my data lives (outside of Spring2018)
+img_train_dir  <- paste(experiment_dir, "train/", sep="")
+img_test_dir <- paste(experiment_dir, "test_practice/", sep="")
+```
+
+### Step 1: Set up controls for model evaluation.
+
+```{r exp_setup}
+run.cv            <- TRUE # run cross-validation on the training set
+K                 <- 5    # number of CV folds
+run.feature.NN.train <- TRUE # process features for training set
+run.test          <- TRUE # run evaluation on an independent test set
+run.feature.NN.test  <- TRUE # process features for test set
+```
+
+### Step 2: Read Training Data Labels.
+
+```{r train_label}
+label_train <- read.table(paste(experiment_dir, "train_label.txt", sep = ""), header = F)
+label_train <- as.numeric(unlist(label_train) == "dog")
+```
+
+
+### Step 3: Training Part
+
+* Extract features for training data.
+
+```{r feature}
+source("../lib/feature.R")
+
+NUM_FILES = 2000
+
+# Neural Network Features
+tm_NN_feature_train <- NA
+if(run.feature.NN.train){
+  tm_NN_feature_train <- system.time(NN_train_feature <- NN_feature(img_train_dir, NUM_FILES))
+}
+
+save(NN_train_feature, file = "../output/features/NN_train_feature.RData")
+```
+
+* Load training functions from "../lib/train.R".
+
+```{r loadlib}
+source("../lib/train.R")
+source("../lib/test.R") # for cross validation
+```
+
+* AdaBoost Model cross validation.
+
+```{r runcv, message=FALSE, warning=FALSE}
+source("../lib/cross_validation.R")
+
+if (!exists("NN_train_feature")) {
+  load("../output/features/NN_train_feature.RData")
+}
+
+model_values <- seq(3, 11, 2)
+model_labels <- paste("Adaboosting with tree depth =", model_values)
+
+
+#Adaboosting label need to be -1 and 1, so made some transformation here
+label_trainada<-label_train
+label_trainada[which(label_trainada==0)] <--1
+
+if(run.cv){
+  err_cv <- array(dim = c(length(model_values), 2))
+  for(k in 1:length(model_values)){
+    cat("k=", k, "\n")
+    err_cv[k,] <- cv.function.ada(NN_train_feature, label_trainada, model_values[k], K)
+  }
+  save(err_cv, file = "../output/err_cvNN_Ada.RData")
+}
+```
+
+* Visualize the cross-validation results. 
+
+```{r cv_vis}
+if(run.cv){
+  if (!exists("err_cv")) {
+    load("../output/err_cvNN_Ada.RData")
+  }
+  # pdf("../figs/cv_results_NN_ada.pdf", width=7, height=5)
+  plot(model_values, err_cv[,1], xlab = "Tree Depth", ylab = "CV Error",
+       main = "Cross Validation Error", type = "n", ylim = c(0, 0.15))
+  points(model_values, err_cv[,1], col = "blue", pch=16)
+  lines(model_values, err_cv[,1], col = "blue")
+  arrows(model_values, err_cv[,1] - err_cv[,2], model_values, err_cv[,1] + err_cv[,2], 
+        length = 0.1, angle = 90, code = 3)
+  # dev.off()
+}
+```
+
+* Choose the "best" parameter value
+
+```{r best_model}
+model_best <- model_values[1]
+if(run.cv){
+  model_best <- model_values[which.min(err_cv[, 1])]
+}
+
+par_best <- list(depth = model_best)
+```
+
+* Train the model with the entire training set using the selected model (in this case, model parameter) via cross-validation.
+
+```{r final_train}
+tm_train <- NA
+tm_train <- system.time(fit_train_ada <- ada_train(NN_train_feature, label_trainada, par_best))
+save(fit_train_ada, file = "../output/models/NN_Ada_fit_train_model.RData")
+```
+
+### Step 4: Testing Part
+
+* Extract features from test data
+
+```{r feature}
+source("../lib/feature.R")
+
+NUM_TEST_FILES = 1850
+
+# Neural Network Features
+tm_NN_feature_test <- NA
+if(run.feature.NN.test){
+  tm_NN_feature_test <- system.time(NN_test_feature <- NN_feature(img_test_dir, NUM_TEST_FILES))
+}
+
+save(NN_test_feature, file = "../output/features/NN_test_feature.RData")
+```
+
+* Make predictions with pre-saved model
+
+
+```{r test}
+source("../lib/test.R")
+tm_test <- NA
+if(run.test){
+  if (!exists("fit_train_ada")) {
+    load(file = "../output/models/NN_Ada_fit_train_model.RData")
+  }
+  if (!exists("NN_test_feature")) {
+    load(file = "../output/features/NN_test_feature.RData")
+  }
+  tm_test <- system.time(pred_test <- ada_test(fit_train_ada, NN_test_feature))
+  save(pred_test, file = "../output/predictions/pred_NN_Ada_test_practice.RData")
+}
+```
+
+* Check accuracies
+
+```{r}
+# test_label = label_train[1:1850]
+# accu = mean(test_label == pred_test)
+```
+
+### Summarize Running Time
+
+
+```{r running_time}
+cat("Time for constructing training features=", tm_NN_feature_train[1], "s \n")
+cat("Time for constructing testing features=", tm_NN_feature_test[1], "s \n")
+cat("Time for training model=", tm_train[1], "s \n")
+cat("Time for making prediction=", tm_test[1], "s \n")
+```

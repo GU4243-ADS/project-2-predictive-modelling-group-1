@@ -6,7 +6,7 @@
 ### Project 3
 ### ADS Spring 2016
 
-test <- function(fit_train, dat_test){
+ada_test <- function(fit_train, dat_test){
   
   ### Fit the classfication model with testing data
   
@@ -17,11 +17,9 @@ test <- function(fit_train, dat_test){
   
   ### load libraries
   
-  library("gbm")
+  library("JOUSBoost")
   
-  pred <- predict(fit_train$fit, newdata = dat_test, 
-                  n.trees = fit_train$iter, type = "response")
+  pred <- predict(fit_train, dat_test, type = "response")
   
-  return(as.numeric(pred > 0.5))
+  return(pred)
 }
-
