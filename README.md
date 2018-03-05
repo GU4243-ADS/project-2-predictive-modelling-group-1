@@ -14,8 +14,11 @@ Term: Spring 2018
 + Team Number: 1
 + Team Members: David Arredondo 
                 Yujie Hu
-                [a list of team members]
-+ Project summary: [a short summary] 
+                Yang He
+                Judy Cheng
+                Huijun Cui
+                
++ Project summary: We analyzed multpile classification models, and several different feature extractors
 
 Contribution statement: [default](doc/a_note_on_contributions.md) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement.
 
@@ -31,3 +34,12 @@ proj/
 ```
 
 Please see each subfolder for a README file.
+
+## Summary Table
+
+
+
+### Choosing Our Model
+
+Each us tried to work with different features, and then apply different models on them to 
+
