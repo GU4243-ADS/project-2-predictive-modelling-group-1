@@ -10,13 +10,9 @@
 
 Term: Spring 2018
 
-+ Project title: [Dog or Cat?]
++ Project title: Dog or Cat?
 + Team Number: 5
-+ Team Members: David Arredondo,
-                Yujie Hu,               
-                Yang He,                
-                Judy Cheng,                
-                Huijun Cui
++ Team Members: David Arredondo, Yujie Hu, Yang He, Judy Cheng, Huijun Cui
                 
 + Project summary: Our goal was to find an accurate and efficent model capable of classifing dog and cat images.
 After analyzing several combinations of models and feature extractors, our team concluded that an AdaBoost model with neural network derived features offers the best of both performance and speed.
