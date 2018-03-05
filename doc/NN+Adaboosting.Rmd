@@ -95,6 +95,8 @@ if(run.feature.train){
   tm_feature_train <- system.time(dat_train <- feature(img_train_dir, export = TRUE))
 }
 
+img_test_dir<-paste(experiment_dir, "test_for_fun/", sep="")
+
 tm_feature_test <- NA
 if(run.feature.test){
   tm_feature_test <- system.time(dat_test <- feature(img_test_dir, export = TRUE))
@@ -186,10 +188,10 @@ Feed the final training model with the test data.  (Note that for this to truly 
 ```{r test}
 tm_test <- NA
 if(run.test){
-  load(file = paste0("../output/feature_", "zip", "_", "test", ".RData"))
-  load(file = "../output/fit_train.RData")
+  #load(file = paste0("../output/feature_", "zip", "_", "test", ".RData"))
+  load(file = "../output/NN_Ada_fit_train.RData")
   tm_test <- system.time(pred_test <- test(fit_train, dat_test))
-  save(pred_test, file = "../output/pred_test.RData")
+  save(pred_test, file = "../output/pred_testwanying.RData")
 }
 ```
 

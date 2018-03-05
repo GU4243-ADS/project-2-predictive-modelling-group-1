@@ -31,7 +31,8 @@ test.label  <- label_train[-s]
 
 svm_100 =svm(x = train.data, y = train.label, kernel ="linear", cost=100,scale = TRUE)
 summary(svm_100)
-svm_1e04=svm(x = train.data, y = train.label, kernel ="linear", cost=0.001, scale=TRUE)
+
+svm_1e04=svm(x = NN_values, y = label_train, kernel ="linear", cost=0.001, scale=TRUE)
 summary(svm_1e04)
 
 tune.out=tune(svm,train.x=train.data, train.y=train.label,kernel="linear",scale=T,
@@ -40,24 +41,24 @@ summary(tune.out)
 best_svm =tune.out$best.model
 summary(best_svm)
 
-label.pred = predict(svm_1e04,test.data)
+label.pred = predict(svm_1e04,NN_values)
+save(svm_1e04, file = "../output/NN_SVM_fit_train.RData")
+
 
 bestmatrix<-table(predict = label.pred,truth=test.label)
 bestmatrix
 accuracy = sum(bestmatrix[1,1]+bestmatrix[2,2])/500
 accuracy
 
-svmdata<-as.data.frame(cbind(train.data,train.label))
-svmdata$train.label<-as.factor(svmdata$train.label)
-
-
+svmdata<-as.data.frame(cbind(NN_values,label_train))
+svmdata$label_train<-as.factor(svmdata$label_train)
 
 tune.out=tune(svm,train.x=train.data, train.y=train.label,kernel="linear",scale=T,
               ranges =list(cost=c(0.001,0.005,0.01,0.1,0.5,1,10)))
 best_svm =tune.out$best.model
 summary(best_svm)
 
-svm_1e04=svm(train.label~.,svmdata, kernel ="linear", cost=0.001, scale=TRUE)
+svm_1e04=svm(label_train~.,svmdata, kernel ="linear", cost=0.001, scale=TRUE)
 summary(svm_1e04)
 
 

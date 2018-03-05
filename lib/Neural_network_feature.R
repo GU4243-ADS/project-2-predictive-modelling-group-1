@@ -49,7 +49,7 @@ feature <- function(img_dir, export=T){
   NN_values <- matrix(NA,n_files,1001 ) 
   
   for(i in 1:n_files){
-    img <- readImage(paste0(img_dir,  "pet", i, ".jpg"))
+    img <- readImage(paste0(img_dir,  "wanying", i, ".jpg"))
     imgs[[i]] <- img
     img_resized[[i]] <- cv2$resize(imgs[[i]], dsize=tuple(224L, 224L))
     img_resized[[i]] <- (img_resized[[i]] - 0.5) * 2
@@ -64,7 +64,7 @@ feature <- function(img_dir, export=T){
   
   ### output constructed features
   if(export){
-    save(NN_values, file = paste0("../output/feature_",  "NN", ".RData"))
+    save(NN_values, file = paste0("../output/feature_",  "NNwanying", ".RData"))
   }
   return(NN_values)
 }
