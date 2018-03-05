@@ -47,7 +47,7 @@ Please see each subfolder for a README file.
  Gradient Boosting              | Acc:73.5%(991s)| Acc: 68.5% (8s)| Acc: 72.9% (521s)| Acc: 88.8% (667s)
  Random Forest                  | Acc:70.5% (2s)| Acc: 68% (1s)| Acc: 77.8% (23s) | Acc: 83.5% (4s)
  SVM                            | Acc:81.25% (3s)| Acc: 70% (1s)| Acc: 78.5% (24s) | Acc: 91%(45s)
- Adaboost                       | Acc: | Acc: 68.25% (1s)| Acc: 72% (153s)| Acc: 91.05% (127s)
+ Adaboost                       | Acc: 71.75% (1s)| Acc: 68.25% (1s)| Acc: 72% (153s)| Acc: 91.05% (127s)
  KNN                            | Acc: 76.75% (2s)| Acc: 60% (1s)| Acc: 74% (8s)| Acc:71.5% (7s)
 
 ### Choosing Our Model
