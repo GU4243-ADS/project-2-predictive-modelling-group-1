@@ -19,7 +19,7 @@ After analyzing several combinations of models and feature extractors, our team 
 
 Contribution statement:
 
-Yang extracted SIFT features and build a bag-of-word template for generating trainable matrices, cleaned up the repo, and buit a simple Convolutional Network.
+Yang extracted SIFT features and build a bag-of-word template for generating trainable matrices, cleaned up the repo, and buit a simple Convolutional Neural Network.
 
 David ran the ORB features on the different models, some of the HOG features and wrote the README files. 
 

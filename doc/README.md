@@ -1,7 +1,7 @@
 # Project 1: 
 ### Doc folder
 
-Contains three runnable files for the main part of the project: main.rmd, mainipynb, Neural Network.ipynb. All other files merely document our exploration proccess.
+Contains two runnable files for the main part of the project: main.rmd, main.ipynb. All other files merely document our exploration proccess, which are in /model_testing folders.
 
 All other files are explorations of certain feature and model combinations
 
