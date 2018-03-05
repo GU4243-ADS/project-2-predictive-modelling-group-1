@@ -37,7 +37,13 @@ Please see each subfolder for a README file.
 
 ## Summary Table
 
-
+ Classifer \\Feature (with time)| SIFT (600s)| ORB (3180s)| HOG (85s)| NN (277s) 
+---|---| ---|--- |--- 
+ Gradient Boosting              | Acc:70.5%  | Acc: 68.5%| Acc: 72.9%| Acc:
+ Random Forest                  | Acc:70.5% | Acc: 68%| Acc: | Acc:
+ SVM                            | Acc:81.25% (3s) | Acc: 70%| Acc: | Acc:
+ Adaboost                       | Acc: | Acc: | Acc: | Acc:
+ KNN                            | Acc: 76.75%| Acc: 67%| Acc: | Acc:
 
 ### Choosing Our Model
 
