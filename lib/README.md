@@ -1,4 +1,4 @@
 # Project 1: 
 ### Code lib Folder
 
-The lib directory contains various files with function definitions (but only function definitions - no code that actually runs).
+The important items are: train.R, test.R, and Neural\_Network\_features.R. These are used by the main files in the doc folder to make predictions.
