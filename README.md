@@ -11,17 +11,25 @@
 Term: Spring 2018
 
 + Project title: [a title]
-+ Team Number: 1
++ Team Number: 5
 + Team Members: David Arredondo,
+
                 Yujie Hu,
+                
                 Yang He,
+                
                 Judy Cheng,
+                
                 Huijun Cui
                 
 + Project summary: Our goal was to find an accurate and efficent model capable of classifing dog and cat images.
 After analyzing several combinations of models and feature extractors, our team concluded that an AdaBoost model with neural network derived features offers the best of both performance and speed.
 
-Contribution statement: [default](doc/a_note_on_contributions.md) David ran the ORB features, some of the HOG features and wrote the README files. All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement.
+Contribution statement:  
+David ran the ORB features, some of the HOG features and wrote the README files. 
+
+Yujie extracted HOG and Neural Network Features, checked Baseline model(GBM) on every feature we have and built Adaboost on NN feature.
+
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
@@ -42,12 +50,13 @@ Please see each subfolder for a README file.
 ---|---| ---|--- |--- 
  Gradient Boosting              | Acc:70.5%  | Acc: 68.5% (8s)| Acc: 72.9% (521s)| Acc: 88.8% (667s)
  Random Forest                  | Acc:70.5% | Acc: 68% (1s)| Acc: 77.8% (23s) | Acc: 83.5%
- SVM                            | Acc:81.25% (3s) | Acc: 70% (1s)| Acc: 78.5% (24s) | Acc: 91%
+ SVM                            | Acc:81.25% (3s) | Acc: 70% (1s)| Acc: 78.5% (24s) | Acc: 91%(45s)
  Adaboost                       | Acc: | Acc: 68.25% (1s)| Acc: 72% (153s)| Acc: 90.95% (127s)
  KNN                            | Acc: 76.75%| Acc: 60% (1s)| Acc: 74% (8s)| Acc:71.5%
 
 ### Choosing Our Model
 
 We chose the AdaBoost Model with Nerual Network dervied features. This model has the best combination of accuracy and performance time.
+
 The above table shows our experiementation with other models, of which we had mixed results. The neural network derived features provided the best results, but the HOG features were by far the fastest. Although the HOG features provided resable prediction accuracy and great speed, the nerual network features were fast enough to compete, and gave much better accuracy.
 
