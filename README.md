@@ -10,16 +10,12 @@
 
 Term: Spring 2018
 
-+ Project title: [a title]
++ Project title: [Dog or Cat?]
 + Team Number: 5
 + Team Members: David Arredondo,
-
-                Yujie Hu,
-                
-                Yang He,
-                
-                Judy Cheng,
-                
+                Yujie Hu,               
+                Yang He,                
+                Judy Cheng,                
                 Huijun Cui
                 
 + Project summary: Our goal was to find an accurate and efficent model capable of classifing dog and cat images.
