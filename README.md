@@ -40,7 +40,7 @@ Please see each subfolder for a README file.
 
  Classifer \\ Feature (with time)| SIFT (600s)| ORB (3180s)| HOG (85s)| NN (277s) 
 ---|---| ---|--- |--- 
- Gradient Boosting              | Acc:70.5%  | Acc: 68.5% (8s)| Acc: 72.9% (521s)| Acc: 88.8% (667s)
+ Gradient Boosting              | Acc:70.5%(991s)  | Acc: 68.5% (8s)| Acc: 72.9% (521s)| Acc: 88.8% (667s)
  Random Forest                  | Acc:70.5% | Acc: 68% (1s)| Acc: 77.8% (23s) | Acc: 83.5%
  SVM                            | Acc:81.25% (3s) | Acc: 70% (1s)| Acc: 78.5% (24s) | Acc: 91%(45s)
  Adaboost                       | Acc: | Acc: 68.25% (1s)| Acc: 72% (153s)| Acc: 91.05% (127s)
