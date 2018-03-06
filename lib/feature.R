@@ -47,13 +47,25 @@ NN_feature <- function(img_dir, n_files){
   img_resized<- vector("list", n_files)
   input_img<- vector("list", n_files)
   NN_values <- matrix(NA,n_files,1001 ) 
+  dat <- matrix(NA, nrow = n_files, ncol = 3) 
+  #load for the bw image this is img_nnet
+  load("/Users/mac/Documents/GitHub/project-2-predictive-modelling-group-1/output/subsititue_forbw.RData")
   
   for(i in 1:n_files){
     img <- readImage(paste0(img_dir,  "pet", i, ".jpg"))
     imgs[[i]] <- img
-    img_resized[[i]] <- cv2$resize(imgs[[i]], dsize=tuple(224L, 224L))
-    img_resized[[i]] <- (img_resized[[i]] - 0.5) * 2
+    dat[i, 1:length(dim(imgs[[i]]))] <- dim(imgs[[i]])
+
+   if (is.na(dat[i,3])){
+      
+      #img_nnet is a normal image's result(more in image analysis advanced) 
+      img_resized[[i]]<-img_nnet
+    }else{
+      img_resized[[i]] <- cv2$resize(imgs[[i]], dsize=tuple(224L, 224L))
+      img_resized[[i]] <- (img_resized[[i]] - 0.5) * 2
+    }
     input_img[[i]] <- np_array(img_resized[[i]], dtype='float32')$reshape(1L, 224L, 224L, 3L)
+    
     
     NN_values[i,] <- sess$run(
       graph_output,
